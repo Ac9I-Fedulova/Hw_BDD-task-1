@@ -10,43 +10,45 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MoneyTransferTest {
 
     @Test
-    void shouldTransferPartOfAmountFromSecondToFirstCard() {  // часть со второй на первую
+    void shouldTransferPartOfAmountFromSecondToFirstCard() {  // часть суммы со второй на первую
         var loginPage = open("http://localhost:9999", LoginPage.class);
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
 
-        int initialBalanceFirstCard = dashboardPage.getCardBalance(DataHelper.getfirstCard());
-        int initialBalanceSecondCard = dashboardPage.getCardBalance(DataHelper.getsecondCard());
+        int initialBalanceFirstCard = dashboardPage.getCardBalance(dashboardPage.getFirstCardId());
+        int initialBalanceSecondCard = dashboardPage.getCardBalance(dashboardPage.getSecondCardId());
 
-        var transferPage = dashboardPage.getCard(DataHelper.getfirstCard()); // выбираем пополнить первую карту
-
-        int amount = 100;
+        var transferPage = dashboardPage.selectCard(dashboardPage.getFirstCardId()); // выбираем пополнить первую карту
+        int amount = 1000;
         var transferCard = transferPage.transferMoney(amount, DataHelper.getsecondCard());
 
-        assertEquals(initialBalanceFirstCard + amount, transferCard.getCardBalance(DataHelper.getfirstCard()));
-        assertEquals(initialBalanceSecondCard - amount, transferCard.getCardBalance(DataHelper.getsecondCard()));
+        assertEquals(initialBalanceFirstCard + amount,
+                transferCard.getCardBalance(dashboardPage.getFirstCardId())); // 11000
+        assertEquals(initialBalanceSecondCard - amount,
+                transferCard.getCardBalance(dashboardPage.getSecondCardId())); // 9000
     }
 
     @Test
-    void shouldTransferAllAmountsFromFirstCardToSecond() {  // всю с первой на вторую
+    void shouldTransferAllAmountsFromFirstCardToSecond() {  // всю сумму с первой на вторую
         var loginPage = open("http://localhost:9999", LoginPage.class);
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
 
-        int initialBalanceFirstCard = dashboardPage.getCardBalance(DataHelper.getfirstCard());
-        int initialBalanceSecondCard = dashboardPage.getCardBalance(DataHelper.getsecondCard());
+        int initialBalanceFirstCard = dashboardPage.getCardBalance(dashboardPage.getFirstCardId());
+        int initialBalanceSecondCard = dashboardPage.getCardBalance(dashboardPage.getSecondCardId());
 
-        var transferPage = dashboardPage.getCard(DataHelper.getsecondCard()); // выбираем пополнить вторую карту
-
+        var transferPage = dashboardPage.selectCard(dashboardPage.getSecondCardId()); // выбираем пополнить вторую карту
         int amount = initialBalanceFirstCard;
         var transferCard = transferPage.transferMoney(amount, DataHelper.getfirstCard());
 
-        assertEquals(initialBalanceFirstCard - amount, transferCard.getCardBalance(DataHelper.getfirstCard()));
-        assertEquals(initialBalanceSecondCard + amount, transferCard.getCardBalance(DataHelper.getsecondCard()));
+        assertEquals(initialBalanceFirstCard - amount,
+                transferCard.getCardBalance(dashboardPage.getFirstCardId())); // 0
+        assertEquals(initialBalanceSecondCard + amount,
+                transferCard.getCardBalance(dashboardPage.getSecondCardId())); // 20000
     }
 
     @Test
@@ -57,16 +59,17 @@ public class MoneyTransferTest {
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
 
-        int initialBalanceFirstCard = dashboardPage.getCardBalance(DataHelper.getfirstCard());
-        int initialBalanceSecondCard = dashboardPage.getCardBalance(DataHelper.getsecondCard());
+        int initialBalanceFirstCard = dashboardPage.getCardBalance(dashboardPage.getFirstCardId());
+        int initialBalanceSecondCard = dashboardPage.getCardBalance(dashboardPage.getSecondCardId());
 
-        var transferPage = dashboardPage.getCard(DataHelper.getfirstCard()); // выбираем пополнить первую карту
-
+        var transferPage = dashboardPage.selectCard(dashboardPage.getFirstCardId()); // выбираем пополнить первую карту
         int amount = initialBalanceSecondCard + 222;
         var transferCard = transferPage.transferMoney(amount, DataHelper.getsecondCard());
 
-        assertEquals(initialBalanceFirstCard + amount, transferCard.getCardBalance(DataHelper.getfirstCard()));
-        assertEquals(initialBalanceSecondCard - amount, transferCard.getCardBalance(DataHelper.getsecondCard()));
+        assertEquals(initialBalanceFirstCard + amount,
+                transferCard.getCardBalance(dashboardPage.getFirstCardId())); // 20_222
+        assertEquals(initialBalanceSecondCard - amount,
+                transferCard.getCardBalance(dashboardPage.getSecondCardId())); // -222
     }
 
     @Test
@@ -77,15 +80,16 @@ public class MoneyTransferTest {
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
 
-        int initialBalanceFirstCard = dashboardPage.getCardBalance(DataHelper.getfirstCard());
-        int initialBalanceSecondCard = dashboardPage.getCardBalance(DataHelper.getsecondCard());
+        int initialBalanceFirstCard = dashboardPage.getCardBalance(dashboardPage.getFirstCardId());
+        int initialBalanceSecondCard = dashboardPage.getCardBalance(dashboardPage.getSecondCardId());
 
-        var transferPage = dashboardPage.getCard(DataHelper.getsecondCard()); // выбираем пополнить вторую карту
-
+        var transferPage = dashboardPage.selectCard(dashboardPage.getSecondCardId()); // выбираем пополнить вторую карту
         int amount = initialBalanceFirstCard;
         var transferCard = transferPage.transferMoney(amount, DataHelper.getfirstCard());
 
-        assertEquals(initialBalanceFirstCard - amount, transferCard.getCardBalance(DataHelper.getfirstCard()));
-        assertEquals(initialBalanceSecondCard + amount, transferCard.getCardBalance(DataHelper.getsecondCard()));
+        assertEquals(initialBalanceFirstCard - amount,
+                transferCard.getCardBalance(dashboardPage.getFirstCardId())); // 0
+        assertEquals(initialBalanceSecondCard + amount,
+                transferCard.getCardBalance(dashboardPage.getSecondCardId())); // 20 000
     }
 }
