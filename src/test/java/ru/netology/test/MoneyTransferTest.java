@@ -1,7 +1,11 @@
 package ru.netology.test;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.data.DataHelper;
+import ru.netology.page.DashboardPage;
 import ru.netology.page.LoginPage;
 
 import static com.codeborne.selenide.Selenide.open;
@@ -9,35 +13,34 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MoneyTransferTest {
 
-    @Test
-    void shouldTransferPartOfAmountFromSecondToFirstCard() {  // часть суммы со второй на первую
+    @BeforeAll
+    static void setUp() {
         var loginPage = open("http://localhost:9999", LoginPage.class);
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        var dashboardPage = verificationPage.validVerify(verificationCode);
+        verificationPage.validVerify(verificationCode);
+    }
 
+    DashboardPage dashboardPage = new DashboardPage();
+
+    @Test
+    void shouldTransferPartOfAmountFromSecondToFirstCard() {  // часть суммы со второй на первую
         int initialBalanceFirstCard = dashboardPage.getCardBalance(dashboardPage.getFirstCardId());
         int initialBalanceSecondCard = dashboardPage.getCardBalance(dashboardPage.getSecondCardId());
 
         var transferPage = dashboardPage.selectCard(dashboardPage.getFirstCardId()); // выбираем пополнить первую карту
-        int amount = 1000;
+        int amount = DataHelper.genRandomAmount(initialBalanceSecondCard);
         var transferCard = transferPage.transferMoney(amount, DataHelper.getsecondCard());
 
         assertEquals(initialBalanceFirstCard + amount,
-                transferCard.getCardBalance(dashboardPage.getFirstCardId())); // 11000
+                transferCard.getCardBalance(dashboardPage.getFirstCardId()));
         assertEquals(initialBalanceSecondCard - amount,
-                transferCard.getCardBalance(dashboardPage.getSecondCardId())); // 9000
+                transferCard.getCardBalance(dashboardPage.getSecondCardId()));
     }
 
     @Test
     void shouldTransferAllAmountsFromFirstCardToSecond() {  // всю сумму с первой на вторую
-        var loginPage = open("http://localhost:9999", LoginPage.class);
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.validLogin(authInfo);
-        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        var dashboardPage = verificationPage.validVerify(verificationCode);
-
         int initialBalanceFirstCard = dashboardPage.getCardBalance(dashboardPage.getFirstCardId());
         int initialBalanceSecondCard = dashboardPage.getCardBalance(dashboardPage.getSecondCardId());
 
@@ -53,11 +56,6 @@ public class MoneyTransferTest {
 
     @Test
     void shouldTransferFromSecondCardToFirstAmountGreaterThanBalance() { //суммы больше баланса со второй на первую
-        var loginPage = open("http://localhost:9999", LoginPage.class);
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.validLogin(authInfo);
-        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        var dashboardPage = verificationPage.validVerify(verificationCode);
 
         int initialBalanceFirstCard = dashboardPage.getCardBalance(dashboardPage.getFirstCardId());
         int initialBalanceSecondCard = dashboardPage.getCardBalance(dashboardPage.getSecondCardId());
@@ -74,12 +72,6 @@ public class MoneyTransferTest {
 
     @Test
     void shouldRemoveNegativeBalanceOfSecondCardWithAllAmountFromFirstCard() {  // вывести вторую карту из отрицательного баланса
-        var loginPage = open("http://localhost:9999", LoginPage.class);
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.validLogin(authInfo);
-        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        var dashboardPage = verificationPage.validVerify(verificationCode);
-
         int initialBalanceFirstCard = dashboardPage.getCardBalance(dashboardPage.getFirstCardId());
         int initialBalanceSecondCard = dashboardPage.getCardBalance(dashboardPage.getSecondCardId());
 

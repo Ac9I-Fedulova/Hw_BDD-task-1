@@ -2,6 +2,8 @@ package ru.netology.data;
 
 import lombok.Value;
 
+import java.util.Random;
+
 public class DataHelper {
     private DataHelper() {
     }
@@ -41,5 +43,8 @@ public class DataHelper {
 
     public static Card getsecondCard() {
         return new Card("5559 0000 0000 0002", 10_000);
+    }
+    public static int genRandomAmount(int balance) {
+       return new Random().nextInt(balance) + 1;
     }
 }
