@@ -12,17 +12,24 @@ public class TransferPage {
     private SelenideElement amountField = $("[data-test-id='amount'] .input__control");
     private SelenideElement fromCardField = $("[data-test-id='from'] .input__control");
     private SelenideElement transferButton = $("[data-test-id='action-transfer'].button");
+    private SelenideElement errorMessage = $("[data-test-id='error-notification'] .notification__content");
 
     public TransferPage() {
         subtitle.shouldBe(Condition.visible);
     }
 
-    public DashboardPage transferMoney(int amount, DataHelper.Card fromCard) {
-        amountField.sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE);
-        amountField.setValue(String.valueOf(amount));
-        fromCardField.sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE);
-        fromCardField.setValue(fromCard.getCardNumber());
-        transferButton.click();
+    public DashboardPage validTransferMoney(String amount, DataHelper.Card card) {
+        transferMoney(amount, card);
         return new DashboardPage();
+    }
+
+    public void transferMoney(String amount, DataHelper.Card card) {
+        amountField.setValue(amount);
+        fromCardField.setValue(card.getCardNumber());
+        transferButton.click();
+    }
+
+    public void findErrorMessage(String expectedText) {
+        errorMessage.shouldBe(Condition.and("Проверка сообщения об ошибке", Condition.text(expectedText), Condition.visible));
     }
 }
